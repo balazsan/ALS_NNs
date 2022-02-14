@@ -3,6 +3,7 @@ Comparison of k-Nearest Neighbors (k-NN) method and Neural Networks (NN) to pred
 
 ---------
 k-NN:
+
 lidR_lasfeat.R:
 Functions to calculate features using ALS point cloud files.
 
