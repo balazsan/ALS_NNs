@@ -10,6 +10,12 @@ Functions to calculate features using ALS point cloud files.
 ALS_feature_calc.R:
 Wrapper script to call lidR_lasfeat.R.
 
+ALS_feature_sel.R:
+Feature selection and feature weight search.
+
+knn_funcs_group_28052019.R:
+k-NN and genalg functions.
+
 ---------
 ANN (Artificial Neural Network)
 
