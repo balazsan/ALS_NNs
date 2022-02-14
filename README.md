@@ -17,7 +17,13 @@ knn_funcs_group_28052019.R:
 k-NN and genalg functions.
 
 ---------
-ANN (Artificial Neural Network)
+ANN (Artificial Neural Network):
+
+ANN.R:
+Predicting forest stand variables using simple ANN based on ALS features.
+
+keras_tf_funcs.R:
+Functions to estimate forest attributes based on field measurements and remote sensing features using Keras with TensorFlow (TF) back-end.
 
 ---------
 2D-CNN:
