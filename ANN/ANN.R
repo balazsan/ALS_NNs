@@ -1,41 +1,38 @@
 # Predicting forest stand variables using simple ANN based on ALS features.
+# Keras with Tensorflow backend necessary for this to run.
 
 # loading required libraries
-library(keras); library(ggplot2); library(parallel)
+library(keras)
 source("keras_tf_funcs.R")
 
 # loading plot information divided into training/validation/test sets
-sp.data.train <- read.csv("path/to/plot_data_train.csv",as.is=T)
-sp.data.val <- read.csv("path/to/plot_data_val.csv",as.is=T)
-sp.data.test <- read.csv("path/to/plot_data_test.csv",as.is=T)
-
-# loading features created with ALS_feature_calc.R
-feat <- readRDS("als.feat.RDS")
+train.labels <- read.csv("../sample_plot_data/sp_data_train.csv",as.is=T)[,c("v","h","d")]
+val.labels <- read.csv("../sample_plot_data/sp_data_val.csv",as.is=T)[,c("v","h","d")]
+test.labels <- read.csv("../sample_plot_data/sp_data_test.csv",as.is=T)[,c("v","h","d")]
 
 # subsetting features the same way as sample plots (this is done here using sample plot IDs)
-feat.train <- feat[feat$sampleplotid%in%sp.data.train$sampleplotid,]
-feat.val <- feat[feat$sampleplotid%in%sp.data.val$sampleplotid,]
-feat.test <- feat[feat$sampleplotid%in%sp.data.test$sampleplotid,]
+train.data <- read.csv("../features/features_train.csv",as.is=T)
+val.data <- read.csv("../features/features_val.csv",as.is=T)
+test.data <- read.csv("../features/features_test.csv",as.is=T)
 
 # adjusting column names (keras doesn't like dots in column names)
-names(sp.data.train) <- gsub("\\.","_",names(sp.data.train))
-names(sp.data.val) <- gsub("\\.","_",names(sp.data.val))
-names(sp.data.test) <- gsub("\\.","_",names(sp.data.test))
+names(train.data) <- gsub("\\.","_",names(train.data))
+names(val.data) <- gsub("\\.","_",names(val.data))
+names(test.data) <- gsub("\\.","_",names(test.data))
 
-# forest attributes
-for.attrs <- c("v","h","d")
-
-# creating input for TF
-if (grepl("id|sampleplotid",names(feat.train)[1])) train.data <- feat.train[,-1] else train.data <- feat.train
-if (grepl("id|sampleplotid",names(feat.val)[1])) val.data <- feat.val[,-1] else val.data <- feat.val
-if (grepl("id|sampleplotid",names(feat.test)[1])) test.data <- feat.test[,-1] else test.data <- feat.test
-train.labels <- sp.data.train[,for.attrs]
-val.labels <- sp.data.val[,for.attrs]
-test.labels <- sp.data.test[,for.attrs]
+# dropping columns w/o useful information (standard deviation is 0 or NaN/NA)
+train.data <- train.data[,apply(train.data,2,function(x) !(sd(x)==0|is.na(sd(x))))]
+val.data <- val.data[,apply(val.data,2,function(x) !(sd(x)==0|is.na(sd(x))))]
+test.data <- test.data[,apply(test.data,2,function(x) !(sd(x)==0|is.na(sd(x))))]
+# keeping only features common in the two sets
+feat.common <- Reduce(intersect,list(names(train.data),names(val.data),names(test.data)))
+train.data <- train.data[,feat.common]
+val.data <- val.data[,feat.common]
+test.data <- test.data[,feat.common]; rm(feat.common)
 
 # https://stats.stackexchange.com/questions/181/how-to-choose-the-number-of-hidden-layers-and-nodes-in-a-feedforward-neural-netw
 # as described above 1 hidden layer should be enough
-# number of neurons of the hidden layer can vary
+# number of neurons of the hidden layer can vary:
 
 # # Ns/(a*(Ni+No)) (Ns: number of samples; a: scaling factor (2-10);
 # # Ni: number of input neurons (features); No: number of output neurons (dependent variables))
@@ -56,7 +53,7 @@ n.neur <- 4
 # declaring functions used during training
 opt <- "adam"; act <- "swish"
 # output directory
-out.dir <- paste0("AV_3layers_",n.neur,"neur_",opt,"_",act,"_multi_circ")
+out.dir <- "out_dir"
 
 # training 10 times, best models and training history saved to output directory
 preds.w <- c(0.6,0.2,0.2)
@@ -69,6 +66,7 @@ tf.runs <- lapply(1:10,function(i) {
   return(out.tmp)
 })
 
+# table of RMSE% and bias% of each run for predicted attributes
 tf.runs <- do.call(rbind,tf.runs)
 # exporting training results
 out.f <- paste0(out.dir,"/tf.train.runs.csv")
@@ -89,45 +87,10 @@ test.runs <- lapply(1:length(in.list),function(i) {
   tf.model.pred(in.data=test.data,in.labels=test.labels,train.data=train.data,train.labels=train.labels,
                 scl="both",hdf5.path=in.path,act="swish",metric="rmse")
 }); cat("\n")
+# table of RMSE% and bias% of each run for predicted attributes
 test.runs <- data.frame(do.call(rbind,test.runs))
 row.names(test.runs) <- paste0(c("test.rmse.run","test.bias.run"),rep(1:10,each=2))
 # exporting results for each run
 out.f <- paste0(out.dir,"/tf.test.runs.csv")
 write.table(test.runs,out.f,quote=F,row.names=T,col.names=NA,sep=";")
-
-# calculating means of 10 runs for test set
-test.runs.means <- lapply(1:2,function(i) {
-  sel.row <- rep(F,2); sel.row[i] <- T
-  round(colMeans(abs(test.runs[sel.row,,drop=F])),2)
-})
-test.runs.means <- data.frame(do.call(rbind,test.runs.means))
-row.names(test.runs.means) <- c("test.rmse","test.bias")
-
-# calculating SD of 10 runs, test set
-test.runs.sd <- lapply(1:2,function(i) {
-  sel.row <- rep(F,2); sel.row[i] <- T
-  round(apply(test.runs[sel.row,,drop=F],2,sd),2)
-})
-test.runs.sd <- data.frame(do.call(rbind,test.runs.sd))
-row.names(test.runs.sd) <- c("test.rmse","test.bias")
-
-# calculating means of 10 runs, training and validation sets
-tf.runs.means <- lapply(1:4,function(i) {
-  sel.row <- rep(F,4); sel.row[i] <- T
-  round(colMeans(abs(tf.runs[sel.row,,drop=F])),2)
-})
-tf.runs.means <- data.frame(do.call(rbind,tf.runs.means))
-row.names(tf.runs.means) <- c("train.rmse","train.bias","val.rmse","val.bias")
-tf.runs.means <- rbind(tf.runs.means,test.runs.means)
-write.table(tf.runs.means,paste0(out.dir,"/tf.runs.means.csv"),quote=F,row.names=T,col.names=NA,sep=";")
-
-# calculating SD of 10 runs, training and validation sets
-tf.runs.sd <- lapply(1:4,function(i) {
-  sel.row <- rep(F,4); sel.row[i] <- T
-  round(apply(tf.runs[sel.row,,drop=F],2,sd),2)
-})
-tf.runs.sd <- data.frame(do.call(rbind,tf.runs.sd))
-row.names(tf.runs.sd) <- c("train.rmse","train.bias","val.rmse","val.bias")
-tf.runs.sd <- rbind(tf.runs.sd,test.runs.sd)
-write.table(tf.runs.sd,paste0(out.dir,"/tf.runs.sd.csv"),quote=F,row.names=T,col.names=NA,sep=";")
 

@@ -11,17 +11,24 @@ library(parallel)
 source("knn_funcs_group_28052019.R")
 
 # loading plot information divided into training/validation/test sets
-sp.data.train <- read.csv("path/to/plot_data_train.csv",as.is=T)
-sp.data.val <- read.csv("path/to/plot_data_val.csv",as.is=T)
-sp.data.test <- read.csv("path/to/plot_data_test.csv",as.is=T)
-
-# loading features created with ALS_feature_calc.R
-feat <- readRDS("als.feat.RDS")
+sp.data.train <- read.csv("../sample_plot_data/sp_data_train.csv",as.is=T)
+sp.data.val <- read.csv("../sample_plot_data/sp_data_val.csv",as.is=T)
+sp.data.test <- read.csv("../sample_plot_data/sp_data_test.csv",as.is=T)
 
 # subsetting features the same way as sample plots (this is done here using sample plot IDs)
-feat.train <- feat[feat$sampleplotid%in%sp.data.train$sampleplotid,]
-feat.val <- feat[feat$sampleplotid%in%sp.data.val$sampleplotid,]
-feat.test <- feat[feat$sampleplotid%in%sp.data.test$sampleplotid,]
+feat.train <- read.csv("../features/features_train.csv",as.is=T)
+feat.val <- read.csv("../features/features_val.csv",as.is=T)
+feat.test <- read.csv("../features/features_test.csv",as.is=T)
+
+# dropping columns w/o useful information (standard deviation is 0 or NaN/NA)
+feat.train <- feat.train[,apply(feat.train,2,function(x) !(sd(x)==0|is.na(sd(x))))]
+feat.val <- feat.val[,apply(feat.val,2,function(x) !(sd(x)==0|is.na(sd(x))))]
+feat.test <- feat.test[,apply(feat.test,2,function(x) !(sd(x)==0|is.na(sd(x))))]
+# keeping only features common in the two sets
+feat.common <- Reduce(intersect,list(names(feat.train),names(feat.val),names(feat.test)))
+feat.train <- feat.train[,feat.common]
+feat.val <- feat.val[,feat.common]
+feat.test <- feat.test[,feat.common]; rm(feat.common,feat)
 
 # forest attributes
 for.attrs <- c("v","h","d")

@@ -25,7 +25,4 @@ sp.las.feat <- lapply(1:nrow(sp.data),function(i) {
 sp.las.feat <- do.call(rbind,sp.las.feat)
 sp.las.feat <- cbind(sp.data["sampleplotid"],sp.las.feat)
 
-# dropping columns w/o useful or w/ missing information (standard deviation is 0 or NaN/NA)
-sp.las.feat <- sp.las.feat[,apply(sp.las.feat,2,function(x) !(sd(x)==0|is.na(sd(x))))]
-
 saveRDS(sp.las.feat,"als.feat.RDS")

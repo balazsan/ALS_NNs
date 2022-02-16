@@ -1,2 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+train_voxels_augmented.npy filter=lfs diff=lfs merge=lfs -text
+train_voxels.npy filter=lfs diff=lfs merge=lfs -text
