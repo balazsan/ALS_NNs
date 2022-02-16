@@ -13,7 +13,7 @@ CSV files with features calculated using ALS_feature_calc.R. Note, no augmentati
 voxel_data:
 
 voxel_data.npz:
-4D-numpy arrays with voxel data for 2D and 3D-CNN. Numeric values represent the number of points within each voxel. Pre-augmented training data is used in 2D-CNN, augmentation carried out on-the-fly in 3D-CNN.
+4D-numpy arrays with voxel data for 2D and 3D-CNN. Numeric values represent the number of points within each voxel. Pre-augmented training data is used in 2D-CNN, augmentation carried out on-the-fly in 3D-CNN. The compressed file contains all voxel datasets (training (augmented), validation, test).
 
 
 ---------
