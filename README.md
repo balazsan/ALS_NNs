@@ -1,4 +1,4 @@
-# ALS_CNN
+# ALS_NNs
 Comparison of k-Nearest Neighbors (k-NN) method and Neural Networks (NN) to predict forest stand variables with help of ALS data
 
 ---------
