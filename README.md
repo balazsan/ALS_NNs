@@ -3,10 +3,12 @@ Comparison of k-Nearest Neighbors (k-NN) method and Neural Networks (NN) to pred
 
 ---------
 sample_plot _data:
+
 CSV files containing mean diameter in cm (d), mean height in m (h) and total growing stock in m3/ha (v).
 
 ---------
 features:
+
 CSV files with features calculated using ALS_feature_calc.R. Note, no augmentation done here as it would produce the same values for most of the features.
 
 ---------
@@ -43,9 +45,5 @@ Functions to estimate forest attributes based on field measurements and remote s
 ---------
 2D-CNN:
 
-2D-CNN_alexnet2_larger_multiout_lindecay_sepmod.py:
+2D-CNN_AlexNet.py:
 AlexNet-type 2D CNN for forest variable prediction. Input 4D numpy array (voxelized ALS data) and csv table with response variables (field data, e.g. volume, mean height, diameter, etc.)
-
-Example data files:
-voxel_data.npy
-forest_attributes.csv
