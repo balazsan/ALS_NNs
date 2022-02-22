@@ -40,7 +40,7 @@ ANN.R:
 Predicting forest stand variables using simple ANN based on ALS features.
 
 keras_tf_funcs.R:
-Functions to estimate forest attributes based on field measurements and remote sensing features using Keras with TensorFlow (TF) back-end.
+Functions to estimate forest attributes based on field measurements and remote sensing features using Keras with TensorFlow (TF) backend.
 
 ---------
 2D-CNN:
