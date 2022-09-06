@@ -24,11 +24,11 @@ feat.test <- read.csv("../features/features_test.csv",as.is=T)
 feat.train <- feat.train[,apply(feat.train,2,function(x) !(sd(x)==0|is.na(sd(x))))]
 feat.val <- feat.val[,apply(feat.val,2,function(x) !(sd(x)==0|is.na(sd(x))))]
 feat.test <- feat.test[,apply(feat.test,2,function(x) !(sd(x)==0|is.na(sd(x))))]
-# keeping only features common in the two sets
+# keeping only features common in all sets
 feat.common <- Reduce(intersect,list(names(feat.train),names(feat.val),names(feat.test)))
 feat.train <- feat.train[,feat.common]
 feat.val <- feat.val[,feat.common]
-feat.test <- feat.test[,feat.common]; rm(feat.common,feat)
+feat.test <- feat.test[,feat.common]; rm(feat.common)
 
 # forest attributes
 for.attrs <- c("v","h","d")
@@ -37,7 +37,7 @@ outname <- "output_filename_of_your_choice"
 outdir <- "output_directory_of_your_choice/"
 
 # independent variables
-mx <- train.data
+mx <- feat.train
 # continuous forest attributes (dependent variables)
 my <- sp.data.train[,for.attrs]
 # weights for forest attributes (set to 1.0 if only one attribute predicted)
@@ -71,7 +71,7 @@ k.g
 
 # select values for k and g
 k <- 6
-g <- 2.0
+g <- 1.4
 fname <- paste0(outname,"_k",k,"g",sprintf("%.1f",g))
 
 # searching for best feature combinations
@@ -140,7 +140,7 @@ best.run <- best.mean.rmse
 # for compatibility with NNs
 # predictions and accuracy metrics are calculated for all datasets (training, validation and test sets)
 # replace here "ws" with "fs" if weight search didn't improve the results
-preds.train <- fknnreg(mx,my,train.data,fs.res=ws[[best.run]]$wei.sel.res,verbose=F)
-preds.val <- fknnreg(mx,my,val.data,fs.res=ws[[best.run]]$wei.sel.res,verbose=F)
-preds.test <- fknnreg(mx,my,test.data,fs.res=ws[[best.run]]$wei.sel.res,verbose=F)
+preds.train <- fknnreg(mx,my,feat.train,fs.res=ws[[best.run]]$wei.sel.res,verbose=F)
+preds.val <- fknnreg(mx,my,feat.val,fs.res=ws[[best.run]]$wei.sel.res,verbose=F)
+preds.test <- fknnreg(mx,my,feat.test,fs.res=ws[[best.run]]$wei.sel.res,verbose=F)
 
