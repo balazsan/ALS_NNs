@@ -47,3 +47,10 @@ Functions to estimate forest attributes based on field measurements and remote s
 
 2D-CNN_AlexNet.py:
 AlexNet-type 2D CNN for forest variable prediction. Input 4D numpy array (voxelized ALS data) and csv table with response variables (field data, e.g. volume, mean height, diameter, etc.)
+
+---------
+3D-CNN:
+
+InceptionV3_multi_sepmod_autoaug.py:
+3D-CNN based on InceptionV3 implemented by Elias Ayrey for forest variable prediction. Input 4D numpy array (voxelized ALS data) and csv table with response variables (field data, e.g. volume, mean height, diameter, etc.).
+This version has been edited from its original (https://github.com/eayrey/3D-Convolutional-Neural-Networks-with-LiDAR/tree/master/InceptionV3-3D_Neural_Network) to carry out multi-regression tasks. The possibility to do training data augmentation on-the-fly and to train the network using all response variable at the time or use alternate training has been added as well. In alternate training the network is trained using one response variable after the other.
