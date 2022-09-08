@@ -81,7 +81,7 @@ x_all=np.load("../voxel_data/voxel_data.npz")
 #training dataset
 train_xs=x_all['train']
 train_ys_orig=pd.read_csv("../sample_plot_data/sp_data_train.aug.csv", sep=',')
-#training data includes augmented data, keeping only observerd data as augmentation will be done on-the-fly
+#training data includes augmented data, keeping only observed data as augmentation will be done on-the-fly
 train_xs=train_xs[0:1044]
 train_ys_orig=train_ys_orig[0:1044]
 
